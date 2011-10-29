@@ -3,7 +3,7 @@ package idletimer;
 import com.sun.jna.*;
 import com.sun.jna.platform.unix.*;
 
-public class LinuxIdleTime implements IdleTime {
+public class LinuxIdleTime {
 	/** Definition (incomplete) of the Xext library. */
 	interface Xss extends Library {
 		Xss INSTANCE = (Xss) Native.loadLibrary("Xss", Xss.class);

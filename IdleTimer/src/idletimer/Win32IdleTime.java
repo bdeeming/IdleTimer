@@ -13,7 +13,7 @@ import com.sun.jna.win32.*;
  * 
  * @author ochafik
  */
-public class Win32IdleTime implements IdleTime {
+public class Win32IdleTime {
 
 	public interface Kernel32 extends StdCallLibrary {
 		Kernel32 INSTANCE = (Kernel32) Native.loadLibrary("kernel32",
