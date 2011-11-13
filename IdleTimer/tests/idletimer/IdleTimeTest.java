@@ -11,7 +11,7 @@ public class IdleTimeTest {
 	public void testGetSeconds() {
 		IdleTime idleTime = new IdleTime();
 		try {
-			assertTrue(idleTime.GetSeconds() > 0.0);
+			assertTrue(idleTime.GetTimeSinceLastActivity() > 0.0);
 		} catch (PlatformNotSupportedException e) {
 			fail("Threw platform not supported exception");
 		}
