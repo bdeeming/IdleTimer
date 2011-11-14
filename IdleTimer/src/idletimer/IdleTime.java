@@ -13,7 +13,11 @@ public class IdleTime {
 
 	final static public int milliSecondsPerSecond = 1000;
 
-	public double GetSeconds() throws PlatformNotSupportedException {
+	/** Get the time in seconds since the last system activity.
+	 * @return The time since the last user input activity.
+	 * @throws PlatformNotSupportedException
+	 */
+	public double GetTimeSinceLastActivity() throws PlatformNotSupportedException {
 		double idleSeconds = 0;
 
 		if (Platform.isLinux()) {
