@@ -5,6 +5,7 @@ package idletimer;
 
 import java.util.logging.Logger;
 
+import idletimer.ActivityWaypoint.ActivityState;
 import idletimer.BufferedActivityStream.TimedOutException;
 import idletimer.IdleTime.PlatformNotSupportedException;
 
@@ -25,11 +26,18 @@ public class SysActivityMonitor extends Thread {
 	ActivityState lastPublishedActivityState;
 	IdleTime idleTime;
 
-	/** Monitors system activity and publishes it as it changes to 
-	 * an output stream.
-	 * @param outputActivityStream The stream to output activity changes to.
-	 * @param activityCheckingPeriod The system activity state is evaluated once every this number of seconds.
-	 * @param minIdleTime The number of seconds that the system must be inactive for to be considered IDLE.
+	/**
+	 * Monitors system activity and publishes it as it changes to an output
+	 * stream.
+	 * 
+	 * @param outputActivityStream
+	 *            The stream to output activity changes to.
+	 * @param activityCheckingPeriod
+	 *            The system activity state is evaluated once every this number
+	 *            of seconds.
+	 * @param minIdleTime
+	 *            The number of seconds that the system must be inactive for to
+	 *            be considered IDLE.
 	 */
 	public SysActivityMonitor(OutputActivityStream outputActivityStream,
 			double activityCheckingPeriod, double minIdleTime) {
@@ -58,7 +66,8 @@ public class SysActivityMonitor extends Thread {
 
 			double timeSinceLastActivity = 0;
 			try {
-				// Get the systems activity state for the period just slept - TODO this needs profiling
+				// Get the systems activity state for the period just slept -
+				// TODO this needs profiling
 				timeSinceLastActivity = idleTime.GetTimeSinceLastActivity();
 			} catch (PlatformNotSupportedException e) {
 				LOGGER.severe("System activity monitor encontered a fatal error. Your "
@@ -67,18 +76,19 @@ public class SysActivityMonitor extends Thread {
 			}
 
 			// Evaluate the system activity state
-			PeriodActivityState periodState = EvaluatePeriodActivityState(timeSinceLastActivity);
+			PeriodActivityState thisPeriodState = EvaluatePeriodActivityState(timeSinceLastActivity);
 
 			// TODO Log the state to file
 
-			// Convert to the external for of activity state
-			ActivityState externalPeriodState = PeriodActivityState
-					.ConvertToActivityState(periodState);
+			// Convert to the external activity state type
+			ActivityWaypoint externalPeriodState = PeriodActivityState
+					.ConvertToActivityWaypoint(thisPeriodState);
 
 			// Put it in the output activity stream if its changed
-			if (externalPeriodState != lastPublishedActivityState) {
-				lastPublishedActivityState = externalPeriodState;
-				outputActivityStream.PutActivityState(externalPeriodState);
+			if (externalPeriodState.getActivityState() != lastPublishedActivityState) {
+				lastPublishedActivityState = externalPeriodState
+						.getActivityState();
+				outputActivityStream.PutActivityWaypoint(externalPeriodState);
 			}
 		}
 	}
@@ -103,34 +113,37 @@ public class SysActivityMonitor extends Thread {
 	protected enum PeriodActivityState {
 		ACTIVE, INACTIVE, IDLE;
 
-		static public ActivityState ConvertToActivityState(
+		static public ActivityWaypoint ConvertToActivityWaypoint(
 				PeriodActivityState state) {
 
 			switch (state) {
 			case IDLE:
-				return ActivityState.IDLE;
+				return new ActivityWaypoint(ActivityState.IDLE);
 			case INACTIVE:
 			case ACTIVE:
 			default:
-				return ActivityState.ACTIVE;
+				return new ActivityWaypoint(ActivityState.ACTIVE);
 			}
 
 		}
 	}
-	
+
 	public static void main(String[] args) throws TimedOutException {
-		
+
 		BufferedActivityStream activityStream = new BufferedActivityStream();
-		SysActivityMonitor activityMonitor = new SysActivityMonitor(activityStream, 1.0, 5.0);
-		
+		SysActivityMonitor activityMonitor = new SysActivityMonitor(
+				activityStream, 1.0, 5.0);
+
 		// Start producing state changes
 		activityMonitor.start();
-		
+
 		// Consume them
 		while (true) {
-			ActivityState newState = activityStream.ReadActivityState(0);
-			
-			System.out.println("Read state: " + newState);
+			ActivityWaypoint newWaypoint = activityStream
+					.ReadActivityWaypoint(0);
+
+			System.out.println("Read state: " + newWaypoint.getActivityState()
+					+ " at time: " + newWaypoint);
 		}
 	}
 

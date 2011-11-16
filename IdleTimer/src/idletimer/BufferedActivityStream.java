@@ -12,12 +12,12 @@ import java.util.ArrayList;
 public class BufferedActivityStream implements OutputActivityStream,
 		InputActivityStream {
 
-	private ArrayList<ActivityState> activityStateBuffer;
+	private ArrayList<ActivityWaypoint> activityStateBuffer;
 	boolean wokeFromNewData;
 
 	public BufferedActivityStream() {
 		super();
-		this.activityStateBuffer = new ArrayList<ActivityState>();
+		this.activityStateBuffer = new ArrayList<ActivityWaypoint>();
 		this.wokeFromNewData = false;
 	}
 
@@ -27,9 +27,9 @@ public class BufferedActivityStream implements OutputActivityStream,
 	 * @see idletimer.InputActivityStream#ReadActivityState()
 	 */
 	@Override
-	synchronized public ActivityState ReadActivityState(long timeout)
+	synchronized public ActivityWaypoint ReadActivityWaypoint(long timeout)
 			throws TimedOutException {
-		
+
 		// Check if there's anything to read, wait until there is
 		while (this.activityStateBuffer.size() <= 0) {
 			try {
@@ -59,13 +59,14 @@ public class BufferedActivityStream implements OutputActivityStream,
 	 * idletimer.OutputActivityStream#PutActivityState(idletimer.ActivityState)
 	 */
 	@Override
-	synchronized public void PutActivityState(ActivityState newState) {
+	synchronized public void PutActivityWaypoint(ActivityWaypoint newWaypoint) {
+		// TODO Add it in chronological placement
 		// Add newState to the the buffer
-		this.activityStateBuffer.add(newState);
+		this.activityStateBuffer.add(newWaypoint);
 
 		// Indicate the reason the consumer is woken
 		this.wokeFromNewData = true;
-		
+
 		// Wake up a waiting consumer
 		notifyAll();
 	}

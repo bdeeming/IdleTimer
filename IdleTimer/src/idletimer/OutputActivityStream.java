@@ -3,15 +3,20 @@
  */
 package idletimer;
 
-/** Output stream for activity event states.
+/**
+ * Output stream for activity event states.
+ * 
  * @author Ben
- *
+ * 
  */
 public interface OutputActivityStream {
-	
-	/** Put a new system activity state.
-	 * @param newState The state to add to the queue
+
+	/**
+	 * Put a new system activity state.
+	 * 
+	 * @param newWaypoint
+	 *            The waypoint to add to the queue
 	 */
-	void PutActivityState(ActivityState newState);
+	void PutActivityWaypoint(ActivityWaypoint newWaypoint);
 
 }
