@@ -2,7 +2,7 @@ package idletimer;
 
 import static org.junit.Assert.*;
 import idletimer.ActivityWaypoint.ActivityState;
-import idletimer.BufferedActivityStream.TimedOutException;
+import idletimer.InputActivityStream.TimedOutException;
 
 import org.junit.Test;
 

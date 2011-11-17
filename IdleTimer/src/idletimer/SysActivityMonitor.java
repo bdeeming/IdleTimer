@@ -6,7 +6,6 @@ package idletimer;
 import java.util.logging.Logger;
 
 import idletimer.ActivityWaypoint.ActivityState;
-import idletimer.BufferedActivityStream.TimedOutException;
 import idletimer.IdleTime.PlatformNotSupportedException;
 
 /**
@@ -128,7 +127,7 @@ public class SysActivityMonitor extends Thread {
 		}
 	}
 
-	public static void main(String[] args) throws TimedOutException {
+	public static void main(String[] args) throws InputActivityStream.TimedOutException {
 
 		BufferedActivityStream activityStream = new BufferedActivityStream();
 		SysActivityMonitor activityMonitor = new SysActivityMonitor(
@@ -140,7 +139,7 @@ public class SysActivityMonitor extends Thread {
 		// Consume them
 		while (true) {
 			ActivityWaypoint newWaypoint = activityStream
-					.ReadActivityWaypoint(0);
+					.ReadActivityWaypoint(InputActivityStream.WAIT_FOREVER);
 
 			System.out.println("Read state: " + newWaypoint.getActivityState()
 					+ " at time: " + newWaypoint);

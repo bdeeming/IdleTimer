@@ -70,14 +70,4 @@ public class BufferedActivityStream implements OutputActivityStream,
 		// Wake up a waiting consumer
 		notifyAll();
 	}
-
-	public class TimedOutException extends Exception {
-
-		private static final long serialVersionUID = 5798694916302392156L;
-
-		public TimedOutException(String msg) {
-			super(msg);
-		}
-	}
-
 }
