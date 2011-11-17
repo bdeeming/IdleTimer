@@ -37,10 +37,8 @@ public class ActivityEventHandler extends Thread {
 	@Override
 	public void run() {
 
-		System.out.println("Started timing");
-		
-		LOGGER.setLevel(Level.ALL);
-		
+		LOGGER.warning("Started timing");
+
 		long totalTime = 0;
 
 		// Start off in the active state
@@ -63,7 +61,7 @@ public class ActivityEventHandler extends Thread {
 							- previousWaypoint.getTime();
 
 					totalTime += timeAllotment;
-					
+
 					LOGGER.warning("Whent IDLE at: " + newWaypoint);
 
 				} else if (previousWaypoint.getActivityState() == ActivityState.IDLE
@@ -73,7 +71,7 @@ public class ActivityEventHandler extends Thread {
 							- previousWaypoint.getTime();
 
 					LOGGER.warning("Whent ACTIVE at: " + newWaypoint);
-					
+
 					while (true) {
 						// Ask user for choice
 						String choice = RequestUserTimeChoice(newWaypoint,
@@ -82,6 +80,11 @@ public class ActivityEventHandler extends Thread {
 						// Assign their choice appropriately
 						if (choice == "keep") {
 							totalTime += timeAllotment;
+							totalTime += 5.0 * 60 * 60 * 1000; // The period
+																// that we were
+																// inactive but
+																// not yet idle
+																// for
 							break;
 						} else if (choice == "wipe") {
 							// Ignore
@@ -91,10 +94,10 @@ public class ActivityEventHandler extends Thread {
 							continue;
 						}
 					}
-					
+
 					// Print the total time
-					int hours = (int)(totalTime/1000/60/60);
-					int mins = (int)((totalTime/1000 - hours * 60)/60);
+					int hours = (int) (totalTime / 1000 / 60 / 60);
+					int mins = (int) ((totalTime / 1000 - hours * 60 * 60) / 60);
 					System.out.println("Time so far: " + hours + ":" + mins);
 				}
 
