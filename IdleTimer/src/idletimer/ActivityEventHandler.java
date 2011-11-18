@@ -6,7 +6,6 @@ package idletimer;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import idletimer.ActivityWaypoint.ActivityState;
@@ -23,6 +22,8 @@ public class ActivityEventHandler extends Thread {
 	private final Logger LOGGER = Logger.getLogger(SysActivityMonitor.class
 			.getName());
 
+	private Task activeTask;
+
 	/**
 	 * Create a new event handler thread.
 	 * 
@@ -32,15 +33,32 @@ public class ActivityEventHandler extends Thread {
 	public ActivityEventHandler(InputActivityStream inputActivityStream) {
 		super();
 		this.inputActivityStream = inputActivityStream;
+		this.activeTask = new Task(0.0);
+	}
+	
+	/**
+	 * @param activeTask The activeTask to set
+	 */
+	synchronized public void setActiveTask(Task activeTask) {
+		this.activeTask = activeTask;
+	}
+	
+	/**
+	 * @return The currently active task.
+	 */
+	synchronized public Task GetActiveTask() {
+		return activeTask;
 	}
 
+	synchronized void IncrementActiveTaskTime(double timeAmount)
+	{
+		System.out.println("Adding time: " + timeAmount + "sec");
+		activeTask.AddTime(timeAmount);
+	}
+	
 	@Override
 	public void run() {
-
-		LOGGER.warning("Started timing");
-
-		long totalTime = 0;
-
+	
 		// Start off in the active state
 		ActivityWaypoint previousWaypoint = new ActivityWaypoint(
 				ActivityState.ACTIVE);
@@ -60,9 +78,9 @@ public class ActivityEventHandler extends Thread {
 					long timeAllotment = newWaypoint.getTime()
 							- previousWaypoint.getTime();
 
-					totalTime += timeAllotment;
+					IncrementActiveTaskTime(timeAllotment);
 
-					LOGGER.warning("Whent IDLE at: " + newWaypoint);
+					LOGGER.warning("Went IDLE at: " + newWaypoint);
 
 				} else if (previousWaypoint.getActivityState() == ActivityState.IDLE
 						&& newWaypoint.getActivityState() == ActivityState.ACTIVE) {
@@ -70,7 +88,7 @@ public class ActivityEventHandler extends Thread {
 					long timeAllotment = newWaypoint.getTime()
 							- previousWaypoint.getTime();
 
-					LOGGER.warning("Whent ACTIVE at: " + newWaypoint);
+					LOGGER.warning("Went ACTIVE at: " + newWaypoint);
 
 					while (true) {
 						// Ask user for choice
@@ -79,12 +97,7 @@ public class ActivityEventHandler extends Thread {
 
 						// Assign their choice appropriately
 						if (choice == "keep") {
-							totalTime += timeAllotment;
-							totalTime += 5.0 * 60 * 60 * 1000; // The period
-																// that we were
-																// inactive but
-																// not yet idle
-																// for
+							IncrementActiveTaskTime(timeAllotment);
 							break;
 						} else if (choice == "wipe") {
 							// Ignore
@@ -95,10 +108,6 @@ public class ActivityEventHandler extends Thread {
 						}
 					}
 
-					// Print the total time
-					int hours = (int) (totalTime / 1000 / 60 / 60);
-					int mins = (int) ((totalTime / 1000 - hours * 60 * 60) / 60);
-					System.out.println("Time so far: " + hours + ":" + mins);
 				}
 
 				previousWaypoint = newWaypoint;
@@ -108,6 +117,7 @@ public class ActivityEventHandler extends Thread {
 				LOGGER.fine("TimedOutException was thrown from read when it shouldn't have been");
 			}
 		}
+		
 	}
 
 	public String RequestUserTimeChoice(ActivityWaypoint curWaypoint,
@@ -155,6 +165,11 @@ public class ActivityEventHandler extends Thread {
 		SysActivityMonitor activityMonitor = new SysActivityMonitor(
 				activityStream, checkingRate, idlePeriod);
 		activityMonitor.start();
+		
+		// Start a task printer
+		Task activeTask = eventHandler.GetActiveTask();
+		TaskPrinter printer = new TaskPrinter(activeTask);
+		printer.start();
 
 	}
 }

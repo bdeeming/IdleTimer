@@ -85,9 +85,21 @@ public class SysActivityMonitor extends Thread {
 
 			// Put it in the output activity stream if its changed
 			if (externalPeriodState.getActivityState() != lastPublishedActivityState) {
+
+				// Adjust to the start of inactivity period if we've gone IDLE
+				if (externalPeriodState.getActivityState() == ActivityState.IDLE) {
+					long minIdleTime_ms = (long) (minIdleTime * 1000);
+					externalPeriodState.setTime(externalPeriodState.getTime()
+							- minIdleTime_ms);
+				}
+
+				// Record what we last published
 				lastPublishedActivityState = externalPeriodState
 						.getActivityState();
+
+				// Publish it
 				outputActivityStream.PutActivityWaypoint(externalPeriodState);
+
 			}
 		}
 	}
@@ -127,7 +139,8 @@ public class SysActivityMonitor extends Thread {
 		}
 	}
 
-	public static void main(String[] args) throws InputActivityStream.TimedOutException {
+	public static void main(String[] args)
+			throws InputActivityStream.TimedOutException {
 
 		BufferedActivityStream activityStream = new BufferedActivityStream();
 		SysActivityMonitor activityMonitor = new SysActivityMonitor(
