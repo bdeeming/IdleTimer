@@ -15,7 +15,7 @@ import idletimer.InputActivityStream.TimedOutException;
  * @author bdeeming
  * 
  */
-public class ActivityEventHandler extends Thread {
+public class LiveTaskTimer extends Thread {
 
 	InputActivityStream inputActivityStream;
 
@@ -30,19 +30,31 @@ public class ActivityEventHandler extends Thread {
 	 * @param inputActivityStream
 	 *            The input stream of activity events.
 	 */
-	public ActivityEventHandler(InputActivityStream inputActivityStream) {
+	public LiveTaskTimer(InputActivityStream inputActivityStream) {
 		super();
 		this.inputActivityStream = inputActivityStream;
-		this.activeTask = new Task(0.0);
+		this.activeTask = new Task("Default", 0.0);
 	}
-	
+
 	/**
-	 * @param activeTask The activeTask to set
+	 * @param newActiveTask
+	 *            The activeTask to set
 	 */
-	synchronized public void setActiveTask(Task activeTask) {
-		this.activeTask = activeTask;
+	synchronized public void setActiveTask(Task newActiveTask) {
+		// Maintain proper task state
+		if (this.activeTask.IsCurrentlyBeingTimed()) {
+			// Stop timing the current task
+			this.activeTask.StopTiming();
+			// Continue the timing with the new task
+			newActiveTask.StartTiming();
+		} else {
+			// Not currently timing => state of tasks already match
+		}
+
+		// Make new task the active task
+		this.activeTask = newActiveTask;
 	}
-	
+
 	/**
 	 * @return The currently active task.
 	 */
@@ -50,18 +62,18 @@ public class ActivityEventHandler extends Thread {
 		return activeTask;
 	}
 
-	synchronized void IncrementActiveTaskTime(double timeAmount)
-	{
-		System.out.println("Adding time: " + timeAmount + "sec");
-		activeTask.AddTime(timeAmount);
-	}
-	
 	@Override
 	public void run() {
-	
+
 		// Start off in the active state
 		ActivityWaypoint previousWaypoint = new ActivityWaypoint(
 				ActivityState.ACTIVE);
+
+		// Start timing the active task
+		activeTask.StartTiming();
+
+		// A task to time the idle period with
+		Task unallocatedTask = new Task("Idle period", 0.0);
 
 		// Consume the input stream
 		while (true) {
@@ -71,43 +83,52 @@ public class ActivityEventHandler extends Thread {
 				newWaypoint = inputActivityStream
 						.ReadActivityWaypoint(InputActivityStream.WAIT_FOREVER);
 
-				// Check for state transition ACTIVE->IDLE
-				if (previousWaypoint.getActivityState() == ActivityState.ACTIVE
-						&& newWaypoint.getActivityState() == ActivityState.IDLE) {
+				// Synch to protect against task being swapped out
+				synchronized (this) {
+					// Check for state transition to ACTIVE
+					if (newWaypoint.getActivityState() == ActivityState.ACTIVE) {
 
-					long timeAllotment = newWaypoint.getTime()
-							- previousWaypoint.getTime();
+						if (previousWaypoint.getActivityState() != ActivityState.ACTIVE) {
 
-					IncrementActiveTaskTime(timeAllotment);
+							// Stop timing the idle period
+							unallocatedTask.StopTiming(newWaypoint);
 
-					LOGGER.warning("Went IDLE at: " + newWaypoint);
+							// Ask the user if they want to keep the idle time
+							while (true) {
+								// Ask user for choice
+								String choice = RequestUserTimeChoice(
+										newWaypoint, previousWaypoint);
 
-				} else if (previousWaypoint.getActivityState() == ActivityState.IDLE
-						&& newWaypoint.getActivityState() == ActivityState.ACTIVE) {
+								// Assign their choice appropriately
+								if (choice == "keep") {
+									System.out
+											.println("Adding idle period to the total: "
+													+ unallocatedTask);
+									activeTask.AddTime(unallocatedTask
+											.GetTotalTime());
+									break;
+								} else if (choice == "wipe") {
+									// Ignore
+									break;
+								} else {
+									// Try again
+									continue;
+								}
+							}
 
-					long timeAllotment = newWaypoint.getTime()
-							- previousWaypoint.getTime();
-
-					LOGGER.warning("Went ACTIVE at: " + newWaypoint);
-
-					while (true) {
-						// Ask user for choice
-						String choice = RequestUserTimeChoice(newWaypoint,
-								previousWaypoint);
-
-						// Assign their choice appropriately
-						if (choice == "keep") {
-							IncrementActiveTaskTime(timeAllotment);
-							break;
-						} else if (choice == "wipe") {
-							// Ignore
-							break;
-						} else {
-							// Try again
-							continue;
+							// Continue timing the main task
+							activeTask.StartTiming(newWaypoint);
 						}
-					}
 
+					} else if (newWaypoint.getActivityState() == ActivityState.IDLE) {
+
+						// Stop timing the main task
+						activeTask.StopTiming(newWaypoint);
+
+						// Start timing the idle period from zero
+						unallocatedTask = new Task("Idle period", 0.0);
+						unallocatedTask.StartTiming(newWaypoint);
+					}
 				}
 
 				previousWaypoint = newWaypoint;
@@ -117,7 +138,7 @@ public class ActivityEventHandler extends Thread {
 				LOGGER.fine("TimedOutException was thrown from read when it shouldn't have been");
 			}
 		}
-		
+
 	}
 
 	public String RequestUserTimeChoice(ActivityWaypoint curWaypoint,
@@ -125,7 +146,7 @@ public class ActivityEventHandler extends Thread {
 		BufferedReader console = new BufferedReader(new InputStreamReader(
 				System.in));
 
-		System.out.println("Enter choice (keep, wipe): ");
+		System.out.print("Enter choice (keep, wipe): ");
 		String choice = null;
 		try {
 			choice = console.readLine();
@@ -152,20 +173,20 @@ public class ActivityEventHandler extends Thread {
 
 		final double checkingRate = 1.0;
 		final double idlePeriod = 5.0 * 60;
+		// final double idlePeriod = 5.0;
 
 		// Buffer
 		BufferedActivityStream activityStream = new BufferedActivityStream();
 
 		// Start consumer
-		ActivityEventHandler eventHandler = new ActivityEventHandler(
-				activityStream);
+		LiveTaskTimer eventHandler = new LiveTaskTimer(activityStream);
 		eventHandler.start();
 
 		// Start producer
 		SysActivityMonitor activityMonitor = new SysActivityMonitor(
 				activityStream, checkingRate, idlePeriod);
 		activityMonitor.start();
-		
+
 		// Start a task printer
 		Task activeTask = eventHandler.GetActiveTask();
 		TaskPrinter printer = new TaskPrinter(activeTask);

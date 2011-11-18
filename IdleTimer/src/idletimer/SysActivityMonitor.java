@@ -89,8 +89,9 @@ public class SysActivityMonitor extends Thread {
 				// Adjust to the start of inactivity period if we've gone IDLE
 				if (externalPeriodState.getActivityState() == ActivityState.IDLE) {
 					long minIdleTime_ms = (long) (minIdleTime * 1000);
-					externalPeriodState.setTime(externalPeriodState.getTime()
-							- minIdleTime_ms);
+					long adjustedTime = externalPeriodState.getTime()
+							- minIdleTime_ms;
+					externalPeriodState.setTime(adjustedTime);
 				}
 
 				// Record what we last published
