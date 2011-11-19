@@ -23,6 +23,8 @@ public class BufferedActivityStreamTest {
 		} catch (TimedOutException e) {
 			// Catch timed out exception (fail test - shouldn't have blocked)
 			fail("ReadActivityState() blocked when it shouldn't have");
+		} catch (InterruptedException e) {
+			fail("Should not have thrown interupted exception");
 		}
 
 		// Check it was the same value
@@ -35,6 +37,53 @@ public class BufferedActivityStreamTest {
 		} catch (TimedOutException e) {
 			// Check for the time out exception (pass test - should have
 			// blocked)
+		} catch (InterruptedException e) {
+			fail("Should not have thrown interupted exception");
 		}
+	}
+
+	@Test
+	public void testInteruptRead() {
+		// Create the stream
+		BufferedActivityStream stream = new BufferedActivityStream();
+
+		// Thread to create an interupt
+		Thread toInterupt = new Thread() {
+
+			private BufferedActivityStream getsInterupted;
+
+			public synchronized Thread start(BufferedActivityStream getsInterupted) {
+				this.getsInterupted = getsInterupted;
+				super.start();
+				return this;
+			}
+
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see java.lang.Thread#run()
+			 */
+			@Override
+			public void run() {
+				// Do a read that blocks
+				try {
+					getsInterupted
+							.ReadActivityWaypoint(InputActivityStream.WAIT_FOREVER);
+				} catch (TimedOutException e) {
+					fail("Shouldn't timeout");
+				} catch (InterruptedException e) {
+					// Supposed to throw
+				}
+			}
+
+		}.start(stream);
+
+		try {
+			Thread.sleep(10);
+		} catch (InterruptedException e) {
+			fail();
+		}
+		
+		toInterupt.interrupt();
 	}
 }

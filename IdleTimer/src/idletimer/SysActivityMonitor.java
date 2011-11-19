@@ -14,7 +14,7 @@ import idletimer.IdleTime.PlatformNotSupportedException;
  * @author Ben
  * 
  */
-public class SysActivityMonitor extends Thread {
+public class SysActivityMonitor extends Thread implements ActivityStateProducer {
 
 	private final Logger LOGGER = Logger.getLogger(SysActivityMonitor.class
 			.getName());
@@ -24,6 +24,8 @@ public class SysActivityMonitor extends Thread {
 	double minIdleTime;
 	ActivityState lastPublishedActivityState;
 	IdleTime idleTime;
+
+	private boolean isRunning;
 
 	/**
 	 * Monitors system activity and publishes it as it changes to an output
@@ -47,6 +49,39 @@ public class SysActivityMonitor extends Thread {
 		this.minIdleTime = minIdleTime;
 		this.lastPublishedActivityState = null;
 		this.idleTime = new IdleTime();
+		this.isRunning = false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Thread#start()
+	 */
+	@Override
+	public synchronized void start() {
+		this.StartProducing();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see idletimer.ActivityStateProducer#StartProducing()
+	 */
+	@Override
+	public void StartProducing() {
+		this.isRunning = true;
+		super.start();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see idletimer.ActivityStateProducer#StopProducing()
+	 */
+	@Override
+	public void StopProducing() {
+		// Gets checked in the main loop before anything more is published
+		this.isRunning = false;
 	}
 
 	@Override
@@ -55,12 +90,17 @@ public class SysActivityMonitor extends Thread {
 		// Convert the period to ms for the sleep
 		long activityCheckingPeriod_ms = (long) (this.activityCheckingPeriod * 1000);
 
-		while (true) {
+		exit: while (true) {
 
 			// Sleep for one period
 			try {
 				sleep(activityCheckingPeriod_ms);
 			} catch (InterruptedException e) {
+			}
+
+			// Check if we should stop running
+			if (!isRunning) {
+				break exit;
 			}
 
 			double timeSinceLastActivity = 0;
@@ -71,7 +111,7 @@ public class SysActivityMonitor extends Thread {
 			} catch (PlatformNotSupportedException e) {
 				LOGGER.severe("System activity monitor encontered a fatal error. Your "
 						+ "platform is not supported for system activity detection.");
-				break;
+				break exit;
 			}
 
 			// Evaluate the system activity state
@@ -103,6 +143,10 @@ public class SysActivityMonitor extends Thread {
 
 			}
 		}
+
+		// Maintain proper state
+		isRunning = false;
+
 	}
 
 	protected PeriodActivityState EvaluatePeriodActivityState(
@@ -152,11 +196,17 @@ public class SysActivityMonitor extends Thread {
 
 		// Consume them
 		while (true) {
-			ActivityWaypoint newWaypoint = activityStream
-					.ReadActivityWaypoint(InputActivityStream.WAIT_FOREVER);
+			try {
+				ActivityWaypoint newWaypoint;
+				newWaypoint = activityStream
+						.ReadActivityWaypoint(InputActivityStream.WAIT_FOREVER);
 
-			System.out.println("Read state: " + newWaypoint.getActivityState()
-					+ " at time: " + newWaypoint);
+				System.out.println("Read state: "
+						+ newWaypoint.getActivityState() + " at time: "
+						+ newWaypoint);
+			} catch (InterruptedException e) {
+				System.out.println("Was interupted");
+			}
 		}
 	}
 

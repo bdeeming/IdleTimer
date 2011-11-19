@@ -21,30 +21,19 @@ public class BufferedActivityStream implements OutputActivityStream,
 		this.wokeFromNewData = false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see idletimer.InputActivityStream#ReadActivityState()
-	 */
 	@Override
 	synchronized public ActivityWaypoint ReadActivityWaypoint(long timeout)
-			throws TimedOutException {
+			throws TimedOutException, InterruptedException {
 
 		// Check if there's anything to read, wait until there is
 		while (this.activityStateBuffer.size() <= 0) {
-			try {
+			// Reset so we know what we woke up from
+			this.wokeFromNewData = false;
+			wait(timeout);
 
-				// Reset so we know what we woke up from
-				this.wokeFromNewData = false;
-				wait(timeout);
-
-				if (!wokeFromNewData) {
-					// Timed out
-					throw new TimedOutException("Read activity state timed out");
-				}
-
-			} catch (InterruptedException e) {
-				// Result of data being available possibly
+			if (!wokeFromNewData) {
+				// Timed out
+				throw new TimedOutException("Read activity state timed out");
 			}
 		}
 
@@ -52,12 +41,6 @@ public class BufferedActivityStream implements OutputActivityStream,
 		return this.activityStateBuffer.remove(0);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * idletimer.OutputActivityStream#PutActivityState(idletimer.ActivityState)
-	 */
 	@Override
 	synchronized public void PutActivityWaypoint(ActivityWaypoint newWaypoint) {
 		// TODO Add it in chronological placement
@@ -69,5 +52,10 @@ public class BufferedActivityStream implements OutputActivityStream,
 
 		// Wake up a waiting consumer
 		notifyAll();
+	}
+
+	@Override
+	synchronized public void Clear() {
+		activityStateBuffer.clear();
 	}
 }

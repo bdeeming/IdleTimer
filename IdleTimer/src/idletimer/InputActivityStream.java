@@ -26,9 +26,16 @@ public interface InputActivityStream {
 	 * @return The oldest activity waypoint on the queue.
 	 * @throws TimedOutException
 	 *             If timeout is exceeded.
+	 * @throws InterruptedException
+	 *             If wait is interrupted
 	 */
 	public ActivityWaypoint ReadActivityWaypoint(long timeout)
-			throws TimedOutException;
+			throws TimedOutException, InterruptedException;
+
+	/**
+	 * Remove all items on the stream.
+	 */
+	public void Clear();
 
 	public class TimedOutException extends Exception {
 
