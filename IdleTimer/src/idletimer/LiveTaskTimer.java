@@ -10,6 +10,8 @@ import java.util.logging.Logger;
 
 import idletimer.ActivityWaypoint.ActivityState;
 import idletimer.InputActivityStream.TimedOutException;
+import idletimer.ui.CmdLineGui;
+import idletimer.ui.TaskPrinter;
 
 /**
  * @author bdeeming
@@ -157,7 +159,7 @@ public class LiveTaskTimer extends Thread {
 							// Stop timing the idle period
 							unallocatedTask.StopTiming(newWaypoint);
 
-							// Ask the user if they want to keep the idle time
+							// Ask the user what to do with the idle time
 							while (true) {
 								// Ask user for choice
 								String choice = RequestUserTimeChoice(
@@ -208,30 +210,6 @@ public class LiveTaskTimer extends Thread {
 
 	}
 
-	public String RequestUserTimeChoice(ActivityWaypoint curWaypoint,
-			ActivityWaypoint previousWaypoint) {
-		BufferedReader console = new BufferedReader(new InputStreamReader(
-				System.in));
-
-		System.out.print("Enter choice (keep, wipe): ");
-		String choice = null;
-		try {
-			choice = console.readLine();
-		} catch (IOException e) {
-			System.out
-					.println("IO error trying to read your choice! Exiting...");
-			System.exit(1);
-		}
-
-		if (choice.equalsIgnoreCase("k")) {
-			choice = "keep";
-		} else if (choice.equalsIgnoreCase("w")) {
-			choice = "wipe";
-		}
-
-		return choice.toLowerCase();
-	}
-
 	/**
 	 * Creates both a live task timer and a sys activity monitor and connects
 	 * them together.
@@ -274,16 +252,18 @@ public class LiveTaskTimer extends Thread {
 		// Create a task to time
 		Task defaultTask = new Task("Default", 0.0);
 
+		// Create a UI
+		CmdLineGui ui = new CmdLineGui();
+
 		// Create the live timer
 		LiveTaskTimer liveTimer = CreateSysActivityLiveTimer(checkingRate,
 				idlePeriod, defaultTask);
 
 		// Start the live task timer
-		liveTimer.start();
+		liveTimer.StartTiming();
 
-		// Start a task printer for user output
-		TaskPrinter printer = new TaskPrinter(defaultTask);
-		printer.start();
+		// Show the task to the user
+		ui.DisplayTask(defaultTask);
 
 	}
 }

@@ -6,17 +6,13 @@ package idletimer;
 import java.util.Date;
 
 /**
- * A single task that the user is timing.
+ * A single task that may be timed.<br>
+ * Allows time to be accumulated and periodically stored.<br>
+ * The total time and elapsed time is able to be retrieved ad-hoc at any point
+ * in time.<br>
+ * All methods are thread safe.
  * 
  * @author bdeeming
- * 
- */
-/**
- * @author Ben
- *
- */
-/**
- * @author Ben
  * 
  */
 public class Task {
@@ -29,6 +25,8 @@ public class Task {
 	private String name;
 
 	/**
+	 * Create a new task instance.
+	 * 
 	 * @param name
 	 *            The name for this task.
 	 * @param totalTime
@@ -122,8 +120,11 @@ public class Task {
 
 	/**
 	 * Calculate the time difference between two date objects.
-	 * @param start The start date.
-	 * @param end The end date.
+	 * 
+	 * @param start
+	 *            The start date.
+	 * @param end
+	 *            The end date.
 	 * @return The time difference in seconds.
 	 */
 	private double GetTimeDifference(Date start, Date end) {
@@ -166,6 +167,10 @@ public class Task {
 		return "Task '" + name + "' [Total time=" + totalHours + ":"
 				+ totalMins + ":" + totalSec + "] [Elapsed time: "
 				+ +elapsedHours + ":" + elapsedMins + "]";
+	}
+
+	public String GetName() {
+		return name;
 	}
 
 }
