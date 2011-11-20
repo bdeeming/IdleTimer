@@ -1,2 +1,2 @@
-java -jar -Djava.library.path="/usr/lib" IdleTimerV0.1.jar
+java -Djava.library.path="/usr/lib" -jar IdleTimerV0.1.jar
 
