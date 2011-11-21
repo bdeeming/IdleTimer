@@ -3,6 +3,7 @@
  */
 package idletimer;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -156,17 +157,17 @@ public class Task {
 	 */
 	@Override
 	synchronized public String toString() {
-		// Split it to readable
-		int totalHours = (int) (GetTotalTime() / (60 * 60));
-		int totalMins = (int) (GetTotalTime() / 60 - (totalHours * 60));
-		int totalSec = (int) (GetTotalTime() - (totalHours * 60 * 60 + totalMins * 60));
 
-		int elapsedHours = (int) (GetElapsedTime() / 1000 / 60 / 60);
-		int elapsedMins = (int) ((GetElapsedTime() / 1000 - totalHours * 60 * 60) / 60);
+		SimpleDateFormat formatter = new SimpleDateFormat("D HH:mm:ss");
 
-		return "Task '" + name + "' [Total time=" + totalHours + ":"
-				+ totalMins + ":" + totalSec + "] [Elapsed time: "
-				+ +elapsedHours + ":" + elapsedMins + "]";
+		long totalTime_ms = (long) (GetTotalTime() * 1000);
+		String totalTime = formatter.format(new Date(totalTime_ms));
+
+		long elapsedTime_ms = (long) (GetTotalTime() * 1000);
+		String elapsedTime = formatter.format(new Date(elapsedTime_ms));
+
+		return "Task '" + name + "' [Total time=" + totalTime
+				+ "] [Elapsed time: " + elapsedTime + "]";
 	}
 
 	public String GetName() {
