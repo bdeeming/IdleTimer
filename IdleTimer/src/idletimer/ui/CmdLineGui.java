@@ -27,6 +27,7 @@ public class CmdLineGui implements TimeAllocationChooser, TaskDisplayer {
 	private TaskPrinter taskPrinter;
 	private long timeToAllocate;
 	private BufferedReader inputReader;
+	private Task originalTask;
 
 	public CmdLineGui() {
 		super();
@@ -51,12 +52,22 @@ public class CmdLineGui implements TimeAllocationChooser, TaskDisplayer {
 	public void RequestUsersChoice(Task currentTask, Date idleStartTime,
 			Date idleEndTime) {
 
+		// Keep the task that the request was made with
+		this.originalTask = currentTask;
+
+		// Display the necessary details
+		DisplayCurrentTaskDetails(currentTask);
+		DisplayIdlePeriodDetails(idleStartTime, idleEndTime);
+
 		// Ask user for choice
 		UserAllocationChoice choice = RequestUserTimeChoice(idleStartTime,
 				idleEndTime);
 
 		// Assign their choice appropriately
 		switch (choice) {
+		default:
+			LOGGER.severe("Got an invalid time allocation state. "
+					+ "Defaulting to keeping all of the idle time.");
 		case KEEP_ALL:
 			// Calc the total difference
 			this.timeToAllocate = idleEndTime.getTime()
@@ -72,14 +83,22 @@ public class CmdLineGui implements TimeAllocationChooser, TaskDisplayer {
 			// Set to zero
 			this.timeToAllocate = 0;
 			break;
-		default:
-
 		}
-
 	}
 
 	private enum UserAllocationChoice {
 		KEEP_ALL, KEEP_PART, KEEP_NONE
+	}
+
+	private void DisplayCurrentTaskDetails(Task taskToDisplay) {
+		// TODO Display the current tasks details (total committed time, etc)
+
+	}
+
+	private void DisplayIdlePeriodDetails(Date idlePeriodStart,
+			Date idlePeriodEnd) {
+		// TODO Display the current tasks details (total committed time, etc)
+
 	}
 
 	private UserAllocationChoice RequestUserTimeChoice(Date startTime,
@@ -117,12 +136,12 @@ public class CmdLineGui implements TimeAllocationChooser, TaskDisplayer {
 
 	private long RequestUserAmountOfTime(long maxTimeThatCanBeAllocated) {
 
-		SimpleDateFormat timeFormatter = new SimpleDateFormat("D:HH:mm:ss");
+		SimpleDateFormat timeFormatter = new SimpleDateFormat("D:HH:mm");
 		String readableMaxTime = timeFormatter.format(new Date(
 				maxTimeThatCanBeAllocated));
 
 		System.out.println("How much of the " + readableMaxTime
-				+ " should be allocated?");
+				+ " should be allocated? (M[:H[:D]]) ");
 
 		while (true) {
 			String userInput = null;
@@ -136,34 +155,45 @@ public class CmdLineGui implements TimeAllocationChooser, TaskDisplayer {
 			}
 
 			// Check its a number
-			if (userInput.matches("\\d{1,2}\\:\\d{1,2}\\:\\d{1,2}\\:\\d{1,2}")) {
-				String timeValues[] = userInput.split("(\\d{1,2})\\:(\\d{1,2})\\:(\\d{1,2})\\:(\\d{1,2})");
-				
-				// Convert to a long
-				// TODO
+			if (userInput.matches("(\\d{1,2})(\\:(\\d{1,2})){0,2}")) {
+				String timeValues[] = userInput.split(":");
+
+				// Convert to longs
+				long mins = (timeValues.length > 0) ? new Long(timeValues[0])
+						: 0;
+				long hours = (timeValues.length > 1) ? new Long(timeValues[1])
+						: 0;
+				long days = (timeValues.length > 2) ? new Long(timeValues[2])
+						: 0;
+
+				// Accumulate to a ms total
+				timeToAllocate = 0;
+				timeToAllocate += mins * 60 * 1000;
+				timeToAllocate += hours * 60 * 60 * 1000;
+				timeToAllocate += days * 24 * 60 * 60 * 1000;
 			} else {
 				// Try again
-				System.out.println("Invalid choice, please try again. Format should be D:H:M:S");
+				System.out
+						.println("Invalid choice, please try again. Format should be M[:H[:D]]");
 			}
 		}
 	}
 
 	@Override
 	public long GetAmountOfTimeToAllocate() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.timeToAllocate;
 	}
 
 	@Override
 	public Task GetTaskToAllocateTimeTo() {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO Full function not due until v2.0
+		return this.originalTask;
 	}
 
 	@Override
 	public Task GetTaskToContinueTimingWith() {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO Full function not due until v2.0
+		return this.originalTask;
 	}
 
 }

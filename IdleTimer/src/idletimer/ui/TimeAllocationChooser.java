@@ -18,7 +18,7 @@ public interface TimeAllocationChooser {
 	/**
 	 * Presents the user with the time allocation choice.<br>
 	 * Displays to user:<br>
-	 * 1- The active task details to the user up until the idle period began<br>
+	 * 1- The active task details up until the idle period began<br>
 	 * 2- The start and end time of the idle period<br>
 	 * <br>
 	 * It asks the user for:<br \>

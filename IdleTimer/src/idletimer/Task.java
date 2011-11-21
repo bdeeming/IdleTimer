@@ -158,15 +158,20 @@ public class Task {
 	@Override
 	synchronized public String toString() {
 
-		SimpleDateFormat formatter = new SimpleDateFormat("D HH:mm:ss");
+		SimpleDateFormat formatter = new SimpleDateFormat("D-HH:mm:ss");
+
+		long twelveHours_ms =12 * 60 * 60
+				* 1000;
 
 		long totalTime_ms = (long) (GetTotalTime() * 1000);
-		String totalTime = formatter.format(new Date(totalTime_ms));
+		String totalTime = formatter.format(new Date(totalTime_ms
+				- twelveHours_ms));
 
 		long elapsedTime_ms = (long) (GetTotalTime() * 1000);
-		String elapsedTime = formatter.format(new Date(elapsedTime_ms));
+		String elapsedTime = formatter.format(new Date(elapsedTime_ms
+				- twelveHours_ms));
 
-		return "Task '" + name + "' [Total time=" + totalTime
+		return "Task '" + name + "' [Total time= " + totalTime
 				+ "] [Elapsed time: " + elapsedTime + "]";
 	}
 

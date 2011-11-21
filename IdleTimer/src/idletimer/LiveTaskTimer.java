@@ -12,6 +12,7 @@ import idletimer.ActivityWaypoint.ActivityState;
 import idletimer.InputActivityStream.TimedOutException;
 import idletimer.ui.CmdLineGui;
 import idletimer.ui.TaskPrinter;
+import idletimer.ui.TimeAllocationChooser;
 
 /**
  * @author bdeeming
@@ -35,6 +36,8 @@ public class LiveTaskTimer extends Thread {
 	// an interrupt) and any other interrupt
 	private boolean isRunning;
 
+	private TimeAllocationChooser timeAllocationChooser;
+
 	/**
 	 * Create a new live task timer thread.
 	 * 
@@ -44,16 +47,21 @@ public class LiveTaskTimer extends Thread {
 	 *            The task to begin timing with.
 	 */
 	public LiveTaskTimer(ActivityStateProducer activityProducer,
-			InputActivityStream inputActivityStream, Task initialTask) {
+			InputActivityStream inputActivityStream,
+			TimeAllocationChooser timeAllocationUi, Task initialTask) {
 		super();
-
-		// Task that we begin with
-		this.activeTask = initialTask;
 
 		// Producer of activity events
 		this.activityProducer = activityProducer;
 		this.inputActivityStream = inputActivityStream;
 
+		// To get user input
+		this.timeAllocationChooser = timeAllocationUi;
+
+		// Task that we begin with
+		this.activeTask = initialTask;
+
+		// Start off not running
 		this.isRunning = false;
 	}
 
@@ -61,7 +69,7 @@ public class LiveTaskTimer extends Thread {
 	 * @param newActiveTask
 	 *            The activeTask to set
 	 */
-	synchronized public void setActiveTask(Task newActiveTask) {
+	synchronized public void SetActiveTask(Task newActiveTask) {
 		// Maintain proper task state
 		if (this.activeTask.IsCurrentlyBeingTimed()) {
 			// Stop timing the current task
@@ -156,33 +164,25 @@ public class LiveTaskTimer extends Thread {
 
 						if (previousWaypoint.getActivityState() != ActivityState.ACTIVE) {
 
-							// Stop timing the idle period
+							// Stop timing the idle period TODO This currently
+							// isn't in use - should it used in the user choice
+							// request to simplify things? Maybe make it a
+							// slightly different type..?
 							unallocatedTask.StopTiming(newWaypoint);
 
 							// Ask the user what to do with the idle time
-							while (true) {
-								// Ask user for choice
-								String choice = RequestUserTimeChoice(
-										newWaypoint, previousWaypoint);
+							timeAllocationChooser.RequestUsersChoice(
+									activeTask, previousWaypoint, newWaypoint);
 
-								// Assign their choice appropriately
-								if (choice == "keep") {
-									System.out
-											.println("Adding idle period to the total: "
-													+ unallocatedTask);
-									activeTask.AddTime(unallocatedTask
-											.GetTotalTime());
-									break;
-								} else if (choice == "wipe") {
-									// Ignore
-									break;
-								} else {
-									// Try again
-									continue;
-								}
-							}
+							// Assign their choice appropriately
+							Task taskToAllocateTo = timeAllocationChooser
+									.GetTaskToAllocateTimeTo();
+							taskToAllocateTo.AddTime(timeAllocationChooser
+									.GetAmountOfTimeToAllocate());
 
-							// Continue timing the main task
+							// Continue timing the chosen task
+							SetActiveTask(timeAllocationChooser
+									.GetTaskToContinueTimingWith());
 							activeTask.StartTiming(newWaypoint);
 						}
 
@@ -226,7 +226,7 @@ public class LiveTaskTimer extends Thread {
 	 */
 	static public LiveTaskTimer CreateSysActivityLiveTimer(
 			double activityCheckingPeriod, double minIdlePeriod,
-			Task initialTask) {
+			TimeAllocationChooser timeAllocationUi, Task initialTask) {
 
 		// Buffer to connect the two threads
 		BufferedActivityStream activityStream = new BufferedActivityStream();
@@ -236,7 +236,8 @@ public class LiveTaskTimer extends Thread {
 				activityStream, activityCheckingPeriod, minIdlePeriod);
 
 		// Finally the live timer itself
-		return new LiveTaskTimer(activityProducer, activityStream, initialTask);
+		return new LiveTaskTimer(activityProducer, activityStream,
+				timeAllocationUi, initialTask);
 	}
 
 	/**
@@ -257,7 +258,7 @@ public class LiveTaskTimer extends Thread {
 
 		// Create the live timer
 		LiveTaskTimer liveTimer = CreateSysActivityLiveTimer(checkingRate,
-				idlePeriod, defaultTask);
+				idlePeriod, ui, defaultTask);
 
 		// Start the live task timer
 		liveTimer.StartTiming();
