@@ -6,7 +6,6 @@ package idletimer.ui;
 import idletimer.Task;
 
 import java.util.Date;
-import java.util.Timer;
 
 /**
  * Requests to the user for time allocation choices to be made.

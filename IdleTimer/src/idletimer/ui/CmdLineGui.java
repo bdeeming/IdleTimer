@@ -10,6 +10,7 @@ import idletimer.Task;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Logger;
 
@@ -25,10 +26,13 @@ public class CmdLineGui implements TimeAllocationChooser, TaskDisplayer {
 
 	private TaskPrinter taskPrinter;
 	private long timeToAllocate;
+	private BufferedReader inputReader;
 
 	public CmdLineGui() {
 		super();
 		this.taskPrinter = new TaskPrinter();
+		// For user input
+		this.inputReader = new BufferedReader(new InputStreamReader(System.in));
 	}
 
 	@Override
@@ -60,7 +64,9 @@ public class CmdLineGui implements TimeAllocationChooser, TaskDisplayer {
 			break;
 		case KEEP_PART:
 			// Ask the user how much
-			this.timeToAllocate = RequestUserAmountOfTime();
+			long maxTimeThatCanBeAllocated = idleEndTime.getTime()
+					- idleStartTime.getTime();
+			this.timeToAllocate = RequestUserAmountOfTime(maxTimeThatCanBeAllocated);
 			break;
 		case KEEP_NONE:
 			// Set to zero
@@ -78,8 +84,6 @@ public class CmdLineGui implements TimeAllocationChooser, TaskDisplayer {
 
 	private UserAllocationChoice RequestUserTimeChoice(Date startTime,
 			Date endTime) {
-		BufferedReader inputReader = new BufferedReader(new InputStreamReader(
-				System.in));
 
 		System.out.println("Would you like to keep all of the idle time, "
 				+ "part of the idle time, or none of it?");
@@ -111,33 +115,36 @@ public class CmdLineGui implements TimeAllocationChooser, TaskDisplayer {
 		}
 	}
 
-	private long RequestUserAmountOfTime() {
-		System.out.println("How much of the time should be allocated?");
+	private long RequestUserAmountOfTime(long maxTimeThatCanBeAllocated) {
+
+		SimpleDateFormat timeFormatter = new SimpleDateFormat("D:HH:mm:ss");
+		String readableMaxTime = timeFormatter.format(new Date(
+				maxTimeThatCanBeAllocated));
+
+		System.out.println("How much of the " + readableMaxTime
+				+ " should be allocated?");
 
 		while (true) {
-			// TODO Implement
-//			String choice = null;
-//			try {
-//				choice = inputReader.readLine();
-//			} catch (IOException e) {
-//				LOGGER.severe("Error while reading user IO from cmd line. Exiting.");
-//				System.out.println("IO error while trying to "
-//						+ "read your choice! Exiting...");
-//				System.exit(1);
-//			}
-//
-//			if (choice.equalsIgnoreCase("a") || choice.equalsIgnoreCase("all")) {
-//				return UserAllocationChoice.KEEP_ALL;
-//			} else if (choice.equalsIgnoreCase("p")
-//					|| choice.equalsIgnoreCase("part")) {
-//				return UserAllocationChoice.KEEP_PART;
-//			} else if (choice.equalsIgnoreCase("n")
-//					|| choice.equalsIgnoreCase("none")) {
-//				return UserAllocationChoice.KEEP_NONE;
-//			} else {
-//				// Try again
-//				System.out.println("Invalid choice, please try again");
-//			}
+			String userInput = null;
+			try {
+				userInput = inputReader.readLine();
+			} catch (IOException e) {
+				LOGGER.severe("Error while reading user IO from cmd line. Exiting.");
+				System.out.println("IO error while trying to "
+						+ "read your input! Exiting...");
+				System.exit(1);
+			}
+
+			// Check its a number
+			if (userInput.matches("\\d{1,2}\\:\\d{1,2}\\:\\d{1,2}\\:\\d{1,2}")) {
+				String timeValues[] = userInput.split("(\\d{1,2})\\:(\\d{1,2})\\:(\\d{1,2})\\:(\\d{1,2})");
+				
+				// Convert to a long
+				// TODO
+			} else {
+				// Try again
+				System.out.println("Invalid choice, please try again. Format should be D:H:M:S");
+			}
 		}
 	}
 
