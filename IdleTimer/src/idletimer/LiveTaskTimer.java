@@ -247,8 +247,8 @@ public class LiveTaskTimer extends Thread {
 	public static void main(String[] args) {
 
 		final double checkingRate = 1.0;
-		final double idlePeriod = 5.0 * 60;
-		// final double idlePeriod = 5.0;
+//		final double idlePeriod = 5.0 * 60;
+		 final double idlePeriod = 5.0;
 
 		// Create a task to time
 		Task defaultTask = new Task("Default", 0.0);

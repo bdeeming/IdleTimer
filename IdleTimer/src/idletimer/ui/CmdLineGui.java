@@ -3,14 +3,12 @@
  */
 package idletimer.ui;
 
-import idletimer.ActivityWaypoint;
-import idletimer.SysActivityMonitor;
 import idletimer.Task;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Logger;
 
@@ -136,9 +134,26 @@ public class CmdLineGui implements TimeAllocationChooser, TaskDisplayer {
 
 	private long RequestUserAmountOfTime(long maxTimeThatCanBeAllocated) {
 
-		SimpleDateFormat timeFormatter = new SimpleDateFormat("D:HH:mm");
-		String readableMaxTime = timeFormatter.format(new Date(
-				maxTimeThatCanBeAllocated));
+		// Calendar to use for time extraction
+		Calendar cal = Calendar.getInstance();
+
+		// Convert time to ms + set cal
+		long time_ms = (long) (maxTimeThatCanBeAllocated * 1000);
+		cal.setTimeInMillis(time_ms);
+
+		// Form it into a string
+		String readableMaxTime = "";
+
+		// Adjust to count from zero
+		int totalTimeDays = cal.get(Calendar.DAY_OF_YEAR) - 1;
+		readableMaxTime += totalTimeDays;
+
+		// Epoch starts at 12:00pm
+		int totalTimeHours = cal.get(Calendar.HOUR_OF_DAY) - 12;
+		readableMaxTime += ":" + totalTimeHours;
+
+		int totalTimeMins = cal.get(Calendar.MINUTE);
+		readableMaxTime += ":" + totalTimeMins;
 
 		System.out.println("How much of the " + readableMaxTime
 				+ " should be allocated? (M[:H[:D]]) ");
@@ -171,6 +186,9 @@ public class CmdLineGui implements TimeAllocationChooser, TaskDisplayer {
 				timeToAllocate += mins * 60 * 1000;
 				timeToAllocate += hours * 60 * 60 * 1000;
 				timeToAllocate += days * 24 * 60 * 60 * 1000;
+				
+				// TODO Check that it doesn't exceed the limit allowed
+				
 			} else {
 				// Try again
 				System.out

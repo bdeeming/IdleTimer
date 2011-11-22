@@ -4,6 +4,7 @@
 package idletimer;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -158,21 +159,40 @@ public class Task {
 	@Override
 	synchronized public String toString() {
 
-		SimpleDateFormat formatter = new SimpleDateFormat("D-HH:mm:ss");
+		// Convert the two time stamps into strings
+		String totalTimeString = TimeToString(GetTotalTime());
+		String elapsedTimeString = TimeToString(GetTotalTime());
 
-		long twelveHours_ms =12 * 60 * 60
-				* 1000;
+		return "Task '" + name + "' [Total time= " + totalTimeString
+				+ "] [Elapsed time: " + elapsedTimeString + "]";
+	}
 
-		long totalTime_ms = (long) (GetTotalTime() * 1000);
-		String totalTime = formatter.format(new Date(totalTime_ms
-				- twelveHours_ms));
+	private String TimeToString(double seconds) {
+		// Calendar to use for time extraction
+		Calendar cal = Calendar.getInstance();
 
-		long elapsedTime_ms = (long) (GetTotalTime() * 1000);
-		String elapsedTime = formatter.format(new Date(elapsedTime_ms
-				- twelveHours_ms));
+		// Convert time to ms + set cal
+		long time_ms = (long) (seconds * 1000);
+		cal.setTimeInMillis(time_ms);
 
-		return "Task '" + name + "' [Total time= " + totalTime
-				+ "] [Elapsed time: " + elapsedTime + "]";
+		// Form it into a string
+		String timeString = "";
+
+		// Adjust to count from zero
+		int totalTimeDays = cal.get(Calendar.DAY_OF_YEAR) - 1;
+		timeString += totalTimeDays;
+
+		// Epoch starts at 12:00pm
+		int totalTimeHours = cal.get(Calendar.HOUR_OF_DAY) - 12; 
+		timeString += ":" + totalTimeHours;
+
+		int totalTimeMins = cal.get(Calendar.MINUTE);
+		timeString += ":" + totalTimeMins;
+
+		int totalTimeSeconds = cal.get(Calendar.SECOND);
+		timeString += ":" + totalTimeSeconds;
+		
+		return timeString;
 	}
 
 	public String GetName() {
