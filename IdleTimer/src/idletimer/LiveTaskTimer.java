@@ -3,15 +3,11 @@
  */
 package idletimer;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.logging.Logger;
 
 import idletimer.ActivityWaypoint.ActivityState;
 import idletimer.InputActivityStream.TimedOutException;
 import idletimer.ui.CmdLineUi;
-import idletimer.ui.TaskPrinter;
 import idletimer.ui.TimeAllocationChooser;
 
 /**
