@@ -139,6 +139,8 @@ public class CmdLineGui implements TimeAllocationChooser, TaskDisplayer {
 	 */
 	private long RequestUserAmountOfTime(long maxTimeThatCanBeAllocated_ms) {
 
+		final long ONE_MIN_MS = 60 * 1000;
+		
 		// Calendar to use for time extraction
 		Calendar cal = Calendar.getInstance();
 
@@ -150,14 +152,18 @@ public class CmdLineGui implements TimeAllocationChooser, TaskDisplayer {
 
 		// Adjust to count from zero
 		int totalTimeDays = cal.get(Calendar.DAY_OF_YEAR) - 1;
-		readableMaxTime += totalTimeDays + "days ";
+		readableMaxTime += totalTimeDays + " days ";
 
 		// Epoch starts at 12:00pm
 		int totalTimeHours = cal.get(Calendar.HOUR_OF_DAY) - 12;
-		readableMaxTime += totalTimeHours + "hours ";
+		readableMaxTime += totalTimeHours + " hours ";
 
 		int totalTimeMins = cal.get(Calendar.MINUTE);
-		readableMaxTime += totalTimeMins + "mins";
+		// If max time is less than 1 min then display 1 min
+		if (maxTimeThatCanBeAllocated_ms < ONE_MIN_MS) {
+			totalTimeMins = 1;
+		}
+		readableMaxTime += totalTimeMins + " mins";
 
 		System.out.println("How much of the " + readableMaxTime
 				+ " should be allocated? (M[:H[:D]]) ");
@@ -192,7 +198,17 @@ public class CmdLineGui implements TimeAllocationChooser, TaskDisplayer {
 				timeToAllocate += days * 24 * 60 * 60 * 1000;
 
 				// Check that it doesn't exceed the limit allowed
-				return timeToAllocate;
+				if (timeToAllocate <= maxTimeThatCanBeAllocated_ms) {
+					return timeToAllocate;
+				} else if (maxTimeThatCanBeAllocated_ms < ONE_MIN_MS
+						&& timeToAllocate == ONE_MIN_MS) {
+					// Return the max (actually less than one min, but keeps
+					// interface tidy without secs)
+					return maxTimeThatCanBeAllocated_ms;
+				} else {
+					System.out.println("The time that you entered was "
+							+ "larger than the idle period. Please try again.");
+				}
 
 			} else {
 				// Try again
@@ -203,8 +219,8 @@ public class CmdLineGui implements TimeAllocationChooser, TaskDisplayer {
 	}
 
 	@Override
-	public long GetAmountOfTimeToAllocate() {
-		return this.timeToAllocate;
+	public double GetAmountOfTimeToAllocate() {
+		return ((double)(this.timeToAllocate)) / 1000.0;
 	}
 
 	@Override

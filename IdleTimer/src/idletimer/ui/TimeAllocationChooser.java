@@ -39,9 +39,9 @@ public interface TimeAllocationChooser {
 	 * Get the total amount of time the user has selected to assign to the
 	 * chosen task.
 	 * 
-	 * @return The time to allocate, in milliseconds.
+	 * @return The time to allocate, in seconds.
 	 */
-	public long GetAmountOfTimeToAllocate();
+	public double GetAmountOfTimeToAllocate();
 	
 	/** Get the task that the user chose to allocate the time to.
 	 * @return The chose task instance.
