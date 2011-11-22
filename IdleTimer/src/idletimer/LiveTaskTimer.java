@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 import idletimer.ActivityWaypoint.ActivityState;
 import idletimer.InputActivityStream.TimedOutException;
-import idletimer.ui.CmdLineGui;
+import idletimer.ui.CmdLineUi;
 import idletimer.ui.TaskPrinter;
 import idletimer.ui.TimeAllocationChooser;
 
@@ -247,14 +247,14 @@ public class LiveTaskTimer extends Thread {
 	public static void main(String[] args) {
 
 		final double checkingRate = 1.0;
-//		final double idlePeriod = 5.0 * 60;
-		 final double idlePeriod = 5.0;
+		final double idlePeriod = 5.0 * 60;
+		// final double idlePeriod = 5.0;
 
 		// Create a task to time
 		Task defaultTask = new Task("Default", 0.0);
 
 		// Create a UI
-		CmdLineGui ui = new CmdLineGui();
+		CmdLineUi ui = new CmdLineUi();
 
 		// Create the live timer
 		LiveTaskTimer liveTimer = CreateSysActivityLiveTimer(checkingRate,

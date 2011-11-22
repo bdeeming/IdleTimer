@@ -18,16 +18,16 @@ import java.util.logging.Logger;
  * @author Ben
  * 
  */
-public class CmdLineGui implements TimeAllocationChooser, TaskDisplayer {
+public class CmdLineUi implements TimeAllocationChooser, TaskDisplayer {
 
-	private final Logger LOGGER = Logger.getLogger(CmdLineGui.class.getName());
+	private final Logger LOGGER = Logger.getLogger(CmdLineUi.class.getName());
 
 	private TaskPrinter taskPrinter;
 	private long timeToAllocate;
 	private BufferedReader inputReader;
 	private Task originalTask;
 
-	public CmdLineGui() {
+	public CmdLineUi() {
 		super();
 		this.taskPrinter = new TaskPrinter();
 		// For user input
@@ -89,14 +89,15 @@ public class CmdLineGui implements TimeAllocationChooser, TaskDisplayer {
 	}
 
 	private void DisplayCurrentTaskDetails(Task taskToDisplay) {
-		// TODO Display the current tasks details (total committed time, etc)
-
+		// Display the current tasks details (total committed time, etc)
+		System.out.println("The current task being timed is: " + taskToDisplay);
 	}
 
 	private void DisplayIdlePeriodDetails(Date idlePeriodStart,
 			Date idlePeriodEnd) {
-		// TODO Display the current tasks details (total committed time, etc)
-
+		// Display the idle period
+		System.out.println("For the idle period: " + idlePeriodStart + " to "
+				+ idlePeriodEnd);
 	}
 
 	private UserAllocationChoice RequestUserTimeChoice(Date startTime,
@@ -140,7 +141,7 @@ public class CmdLineGui implements TimeAllocationChooser, TaskDisplayer {
 	private long RequestUserAmountOfTime(long maxTimeThatCanBeAllocated_ms) {
 
 		final long ONE_MIN_MS = 60 * 1000;
-		
+
 		// Calendar to use for time extraction
 		Calendar cal = Calendar.getInstance();
 
@@ -220,7 +221,7 @@ public class CmdLineGui implements TimeAllocationChooser, TaskDisplayer {
 
 	@Override
 	public double GetAmountOfTimeToAllocate() {
-		return ((double)(this.timeToAllocate)) / 1000.0;
+		return ((double) (this.timeToAllocate)) / 1000.0;
 	}
 
 	@Override
