@@ -160,7 +160,7 @@ public class Task {
 
 		// Convert the two time stamps into strings
 		String totalTimeString = TimeToString(GetTotalTime());
-		String elapsedTimeString = TimeToString(GetTotalTime());
+		String elapsedTimeString = TimeToString(GetElapsedTime());
 
 		return "Task '" + name + "' [Total time= " + totalTimeString
 				+ "] [Elapsed time: " + elapsedTimeString + "]";
