@@ -2,14 +2,11 @@ package idletimer.ui;
 
 import idletimer.Task;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.util.Date;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 import java.awt.GridBagLayout;
 import javax.swing.JLabel;
 import java.awt.GridBagConstraints;
@@ -30,11 +27,12 @@ public class AllocateIdleTimePopup extends JDialog implements TimeAllocationChoo
 	private final JTextField textField = new JTextField();
 	private JTextField txtOriginaltaskdetails;
 	private JTextField txtOthertaskdetails;
-	private final ButtonGroup buttonGroup = new ButtonGroup();
-	private final ButtonGroup buttonGroup_1 = new ButtonGroup();
+	private final ButtonGroup grpKeepPortionChoice = new ButtonGroup();
+	private final ButtonGroup grpAssignChoice = new ButtonGroup();
 	private JTextField txtAssignedtotaskdetails;
 	private JTextField txtOriginaltaskdetails_1;
 	private JTextField txtContinuewithothertask;
+	private final ButtonGroup grpContinueChoice = new ButtonGroup();
 
 	/**
 	 * Create the dialog.
@@ -42,7 +40,7 @@ public class AllocateIdleTimePopup extends JDialog implements TimeAllocationChoo
 	public AllocateIdleTimePopup() {
 		setAlwaysOnTop(true);
 		setTitle("Allocate Idle Time");
-		setBounds(100, 100, 450, 401);
+		setBounds(100, 100, 450, 426);
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		{
 			Component verticalStrut = Box.createVerticalStrut(10);
@@ -85,7 +83,7 @@ public class AllocateIdleTimePopup extends JDialog implements TimeAllocationChoo
 			}
 			{
 				JRadioButton rdbtnAllOfIdle = new JRadioButton("All of idle period");
-				buttonGroup.add(rdbtnAllOfIdle);
+				grpKeepPortionChoice.add(rdbtnAllOfIdle);
 				GridBagConstraints gbc_rdbtnAllOfIdle = new GridBagConstraints();
 				gbc_rdbtnAllOfIdle.anchor = GridBagConstraints.WEST;
 				gbc_rdbtnAllOfIdle.insets = new Insets(0, 15, 0, 5);
@@ -95,7 +93,7 @@ public class AllocateIdleTimePopup extends JDialog implements TimeAllocationChoo
 			}
 			{
 				JRadioButton rdbtnSomeOfIt = new JRadioButton("Some of it:");
-				buttonGroup.add(rdbtnSomeOfIt);
+				grpKeepPortionChoice.add(rdbtnSomeOfIt);
 				GridBagConstraints gbc_rdbtnSomeOfIt = new GridBagConstraints();
 				gbc_rdbtnSomeOfIt.anchor = GridBagConstraints.WEST;
 				gbc_rdbtnSomeOfIt.insets = new Insets(0, 15, 0, 5);
@@ -112,7 +110,7 @@ public class AllocateIdleTimePopup extends JDialog implements TimeAllocationChoo
 			textField.setColumns(20);
 			{
 				JRadioButton rdbtnNoneOfIt = new JRadioButton("None of it");
-				buttonGroup.add(rdbtnNoneOfIt);
+				grpKeepPortionChoice.add(rdbtnNoneOfIt);
 				GridBagConstraints gbc_rdbtnNoneOfIt = new GridBagConstraints();
 				gbc_rdbtnNoneOfIt.anchor = GridBagConstraints.WEST;
 				gbc_rdbtnNoneOfIt.insets = new Insets(0, 15, 0, 5);
@@ -131,7 +129,7 @@ public class AllocateIdleTimePopup extends JDialog implements TimeAllocationChoo
 			}
 			{
 				JRadioButton rdbtnCurrent = new JRadioButton("Current:");
-				buttonGroup_1.add(rdbtnCurrent);
+				grpAssignChoice.add(rdbtnCurrent);
 				GridBagConstraints gbc_rdbtnCurrent = new GridBagConstraints();
 				gbc_rdbtnCurrent.anchor = GridBagConstraints.WEST;
 				gbc_rdbtnCurrent.insets = new Insets(0, 15, 0, 5);
@@ -141,7 +139,7 @@ public class AllocateIdleTimePopup extends JDialog implements TimeAllocationChoo
 			}
 			{
 				txtOriginaltaskdetails = new JTextField();
-				txtOriginaltaskdetails.setEnabled(false);
+				txtOriginaltaskdetails.setEditable(false);
 				txtOriginaltaskdetails.setHorizontalAlignment(SwingConstants.TRAILING);
 				txtOriginaltaskdetails.setText("OriginalTaskDetails");
 				GridBagConstraints gbc_txtOriginaltaskdetails = new GridBagConstraints();
@@ -154,7 +152,7 @@ public class AllocateIdleTimePopup extends JDialog implements TimeAllocationChoo
 			}
 			{
 				JRadioButton rdbtnOther = new JRadioButton("Other:");
-				buttonGroup_1.add(rdbtnOther);
+				grpAssignChoice.add(rdbtnOther);
 				GridBagConstraints gbc_rdbtnOther = new GridBagConstraints();
 				gbc_rdbtnOther.anchor = GridBagConstraints.WEST;
 				gbc_rdbtnOther.insets = new Insets(0, 15, 0, 5);
@@ -164,7 +162,7 @@ public class AllocateIdleTimePopup extends JDialog implements TimeAllocationChoo
 			}
 			{
 				txtOthertaskdetails = new JTextField();
-				txtOthertaskdetails.setEnabled(false);
+				txtOthertaskdetails.setEditable(false);
 				txtOthertaskdetails.setHorizontalAlignment(SwingConstants.TRAILING);
 				txtOthertaskdetails.setText("Click to select");
 				GridBagConstraints gbc_txtOthertaskdetails = new GridBagConstraints();
@@ -186,6 +184,7 @@ public class AllocateIdleTimePopup extends JDialog implements TimeAllocationChoo
 			}
 			{
 				JRadioButton rdbtnTaskTimeWas = new JRadioButton("Task time was assigned to:");
+				grpContinueChoice.add(rdbtnTaskTimeWas);
 				GridBagConstraints gbc_rdbtnTaskTimeWas = new GridBagConstraints();
 				gbc_rdbtnTaskTimeWas.anchor = GridBagConstraints.WEST;
 				gbc_rdbtnTaskTimeWas.insets = new Insets(0, 15, 0, 5);
@@ -195,9 +194,8 @@ public class AllocateIdleTimePopup extends JDialog implements TimeAllocationChoo
 			}
 			{
 				txtAssignedtotaskdetails = new JTextField();
-				txtAssignedtotaskdetails.setHorizontalAlignment(SwingConstants.TRAILING);
-				txtAssignedtotaskdetails.setEnabled(false);
 				txtAssignedtotaskdetails.setEditable(false);
+				txtAssignedtotaskdetails.setHorizontalAlignment(SwingConstants.TRAILING);
 				txtAssignedtotaskdetails.setText("AssignedToTaskDetails");
 				GridBagConstraints gbc_txtAssignedtotaskdetails = new GridBagConstraints();
 				gbc_txtAssignedtotaskdetails.insets = new Insets(0, 0, 0, 15);
@@ -209,6 +207,7 @@ public class AllocateIdleTimePopup extends JDialog implements TimeAllocationChoo
 			}
 			{
 				JRadioButton rdbtnOriginalTask = new JRadioButton("Original task:");
+				grpContinueChoice.add(rdbtnOriginalTask);
 				GridBagConstraints gbc_rdbtnOriginalTask = new GridBagConstraints();
 				gbc_rdbtnOriginalTask.anchor = GridBagConstraints.WEST;
 				gbc_rdbtnOriginalTask.insets = new Insets(0, 15, 0, 5);
@@ -218,9 +217,8 @@ public class AllocateIdleTimePopup extends JDialog implements TimeAllocationChoo
 			}
 			{
 				txtOriginaltaskdetails_1 = new JTextField();
-				txtOriginaltaskdetails_1.setHorizontalAlignment(SwingConstants.TRAILING);
-				txtOriginaltaskdetails_1.setEnabled(false);
 				txtOriginaltaskdetails_1.setEditable(false);
+				txtOriginaltaskdetails_1.setHorizontalAlignment(SwingConstants.TRAILING);
 				txtOriginaltaskdetails_1.setText("OriginalTaskDetails");
 				GridBagConstraints gbc_txtOriginaltaskdetails_1 = new GridBagConstraints();
 				gbc_txtOriginaltaskdetails_1.insets = new Insets(0, 0, 0, 15);
@@ -232,6 +230,7 @@ public class AllocateIdleTimePopup extends JDialog implements TimeAllocationChoo
 			}
 			{
 				JRadioButton rdbtnOther_1 = new JRadioButton("Other:");
+				grpContinueChoice.add(rdbtnOther_1);
 				GridBagConstraints gbc_rdbtnOther_1 = new GridBagConstraints();
 				gbc_rdbtnOther_1.anchor = GridBagConstraints.WEST;
 				gbc_rdbtnOther_1.insets = new Insets(0, 15, 0, 5);
@@ -241,9 +240,8 @@ public class AllocateIdleTimePopup extends JDialog implements TimeAllocationChoo
 			}
 			{
 				txtContinuewithothertask = new JTextField();
-				txtContinuewithothertask.setHorizontalAlignment(SwingConstants.TRAILING);
-				txtContinuewithothertask.setEnabled(false);
 				txtContinuewithothertask.setEditable(false);
+				txtContinuewithothertask.setHorizontalAlignment(SwingConstants.TRAILING);
 				txtContinuewithothertask.setText("Click to select");
 				GridBagConstraints gbc_txtContinuewithothertask = new GridBagConstraints();
 				gbc_txtContinuewithothertask.insets = new Insets(0, 0, 0, 15);
@@ -253,10 +251,6 @@ public class AllocateIdleTimePopup extends JDialog implements TimeAllocationChoo
 				panel.add(txtContinuewithothertask, gbc_txtContinuewithothertask);
 				txtContinuewithothertask.setColumns(10);
 			}
-		}
-		{
-			Component verticalStrut = Box.createVerticalStrut(10);
-			getContentPane().add(verticalStrut);
 		}
 		{
 			JPanel buttonPane = new JPanel();
