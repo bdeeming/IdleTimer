@@ -102,7 +102,7 @@ public class Task {
 	 * 
 	 * @return
 	 */
-	synchronized double GetElapsedTime() {
+	synchronized public double GetElapsedTime() {
 		// If we're not currently timing then simply return zero
 		if (!this.IsCurrentlyBeingTimed()) {
 			return 0.0;
@@ -146,7 +146,7 @@ public class Task {
 	 * 
 	 * @return The total time in seconds that this task has been running for.
 	 */
-	synchronized double GetTotalTime() {
+	synchronized public double GetTotalTime() {
 		return totalTime + this.GetElapsedTime();
 	}
 
