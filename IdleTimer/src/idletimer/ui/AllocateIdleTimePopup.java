@@ -1,9 +1,11 @@
 package idletimer.ui;
 
+import idletimer.LiveTaskTimer;
 import idletimer.Task;
 
 import java.util.Date;
 
+import javax.swing.ButtonModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
@@ -27,23 +29,34 @@ public class AllocateIdleTimePopup extends JDialog implements
 		TimeAllocationChooser {
 
 	private static final long serialVersionUID = 1L;
+
+	private Task originalTask;
+	private double maxTimeThatCanBeAllocated;
+	
+	private JLabel lblIdleperiod;
 	private final JTextField txtTimeToAllocate = new JTextField();
 	private JTextField txtOriginaltaskdetails;
 	private JTextField txtOthertaskdetails;
-	private final ButtonGroup grpKeepPortionChoice = new ButtonGroup();
-	private final ButtonGroup grpAssignChoice = new ButtonGroup();
 	private JTextField txtAssignedtotaskdetails;
 	private JTextField txtOriginaltaskdetails_1;
 	private JTextField txtContinuewithothertask;
+	private final ButtonGroup grpKeepPortionChoice = new ButtonGroup();
+	private final ButtonGroup grpAssignChoice = new ButtonGroup();
 	private final ButtonGroup grpContinueChoice = new ButtonGroup();
-	private JLabel lblIdleperiod;
-	private Task originalTask;
-	private JRadioButton rdbtnSomeOfIt;
+	private JRadioButton rdbtnSomeOfIdle;
+	private JRadioButton rdbtnAllOfIdle;
+	private JRadioButton rdbtnNoneOfIdle;
+	private JRadioButton rdbtnAssignToCurrent;
+	private JRadioButton rdbtnAssignToOther;
+	private JRadioButton rdbtnContWithAssignedTask;
+	private JRadioButton rdbtnContWithOriginalTask;
+	private JRadioButton rdbtnContWithOtherTask;
 
 	/**
 	 * Create the dialog.
 	 */
 	public AllocateIdleTimePopup() {
+		setModal(true);
 		setAlwaysOnTop(true);
 		setTitle("Allocate Idle Time");
 		setBounds(100, 100, 450, 426);
@@ -91,7 +104,7 @@ public class AllocateIdleTimePopup extends JDialog implements
 				panel.add(lblKeep, gbc_lblKeep);
 			}
 			{
-				JRadioButton rdbtnAllOfIdle = new JRadioButton(
+				rdbtnAllOfIdle = new JRadioButton(
 						"All of idle period");
 				grpKeepPortionChoice.add(rdbtnAllOfIdle);
 				GridBagConstraints gbc_rdbtnAllOfIdle = new GridBagConstraints();
@@ -102,14 +115,14 @@ public class AllocateIdleTimePopup extends JDialog implements
 				panel.add(rdbtnAllOfIdle, gbc_rdbtnAllOfIdle);
 			}
 			{
-				rdbtnSomeOfIt = new JRadioButton("Some of it:");
-				grpKeepPortionChoice.add(rdbtnSomeOfIt);
-				GridBagConstraints gbc_rdbtnSomeOfIt = new GridBagConstraints();
-				gbc_rdbtnSomeOfIt.anchor = GridBagConstraints.WEST;
-				gbc_rdbtnSomeOfIt.insets = new Insets(0, 15, 0, 5);
-				gbc_rdbtnSomeOfIt.gridx = 0;
-				gbc_rdbtnSomeOfIt.gridy = 2;
-				panel.add(rdbtnSomeOfIt, gbc_rdbtnSomeOfIt);
+				rdbtnSomeOfIdle = new JRadioButton("Some of it:");
+				grpKeepPortionChoice.add(rdbtnSomeOfIdle);
+				GridBagConstraints gbc_rdbtnSomeOfIdle = new GridBagConstraints();
+				gbc_rdbtnSomeOfIdle.anchor = GridBagConstraints.WEST;
+				gbc_rdbtnSomeOfIdle.insets = new Insets(0, 15, 0, 5);
+				gbc_rdbtnSomeOfIdle.gridx = 0;
+				gbc_rdbtnSomeOfIdle.gridy = 2;
+				panel.add(rdbtnSomeOfIdle, gbc_rdbtnSomeOfIdle);
 			}
 			GridBagConstraints gbc_txtTimeToAllocate = new GridBagConstraints();
 			gbc_txtTimeToAllocate.insets = new Insets(0, 0, 0, 15);
@@ -119,14 +132,15 @@ public class AllocateIdleTimePopup extends JDialog implements
 			panel.add(txtTimeToAllocate, gbc_txtTimeToAllocate);
 			txtTimeToAllocate.setColumns(20);
 			{
-				JRadioButton rdbtnNoneOfIt = new JRadioButton("None of it");
-				grpKeepPortionChoice.add(rdbtnNoneOfIt);
-				GridBagConstraints gbc_rdbtnNoneOfIt = new GridBagConstraints();
-				gbc_rdbtnNoneOfIt.anchor = GridBagConstraints.WEST;
-				gbc_rdbtnNoneOfIt.insets = new Insets(0, 15, 0, 5);
-				gbc_rdbtnNoneOfIt.gridx = 0;
-				gbc_rdbtnNoneOfIt.gridy = 3;
-				panel.add(rdbtnNoneOfIt, gbc_rdbtnNoneOfIt);
+				rdbtnNoneOfIdle = new JRadioButton("None of it");
+				rdbtnNoneOfIdle.setSelected(true);
+				grpKeepPortionChoice.add(rdbtnNoneOfIdle);
+				GridBagConstraints gbc_rdbtnNoneOfIdle = new GridBagConstraints();
+				gbc_rdbtnNoneOfIdle.anchor = GridBagConstraints.WEST;
+				gbc_rdbtnNoneOfIdle.insets = new Insets(0, 15, 0, 5);
+				gbc_rdbtnNoneOfIdle.gridx = 0;
+				gbc_rdbtnNoneOfIdle.gridy = 3;
+				panel.add(rdbtnNoneOfIdle, gbc_rdbtnNoneOfIdle);
 			}
 			{
 				JLabel lblAssignTo = new JLabel("Assign To Task:");
@@ -138,14 +152,15 @@ public class AllocateIdleTimePopup extends JDialog implements
 				panel.add(lblAssignTo, gbc_lblAssignTo);
 			}
 			{
-				JRadioButton rdbtnCurrent = new JRadioButton("Current:");
-				grpAssignChoice.add(rdbtnCurrent);
-				GridBagConstraints gbc_rdbtnCurrent = new GridBagConstraints();
-				gbc_rdbtnCurrent.anchor = GridBagConstraints.WEST;
-				gbc_rdbtnCurrent.insets = new Insets(0, 15, 0, 5);
-				gbc_rdbtnCurrent.gridx = 0;
-				gbc_rdbtnCurrent.gridy = 6;
-				panel.add(rdbtnCurrent, gbc_rdbtnCurrent);
+				rdbtnAssignToCurrent = new JRadioButton("Current:");
+				rdbtnAssignToCurrent.setSelected(true);
+				grpAssignChoice.add(rdbtnAssignToCurrent);
+				GridBagConstraints gbc_rdbtnAssignToCurrent = new GridBagConstraints();
+				gbc_rdbtnAssignToCurrent.anchor = GridBagConstraints.WEST;
+				gbc_rdbtnAssignToCurrent.insets = new Insets(0, 15, 0, 5);
+				gbc_rdbtnAssignToCurrent.gridx = 0;
+				gbc_rdbtnAssignToCurrent.gridy = 6;
+				panel.add(rdbtnAssignToCurrent, gbc_rdbtnAssignToCurrent);
 			}
 			{
 				txtOriginaltaskdetails = new JTextField();
@@ -162,15 +177,15 @@ public class AllocateIdleTimePopup extends JDialog implements
 				txtOriginaltaskdetails.setColumns(10);
 			}
 			{
-				JRadioButton rdbtnOther = new JRadioButton("Other:");
-				rdbtnOther.setEnabled(false);
-				grpAssignChoice.add(rdbtnOther);
-				GridBagConstraints gbc_rdbtnOther = new GridBagConstraints();
-				gbc_rdbtnOther.anchor = GridBagConstraints.WEST;
-				gbc_rdbtnOther.insets = new Insets(0, 15, 0, 5);
-				gbc_rdbtnOther.gridx = 0;
-				gbc_rdbtnOther.gridy = 7;
-				panel.add(rdbtnOther, gbc_rdbtnOther);
+				rdbtnAssignToOther = new JRadioButton("Other:");
+				rdbtnAssignToOther.setEnabled(false);
+				grpAssignChoice.add(rdbtnAssignToOther);
+				GridBagConstraints gbc_rdbtnAssignToOther = new GridBagConstraints();
+				gbc_rdbtnAssignToOther.anchor = GridBagConstraints.WEST;
+				gbc_rdbtnAssignToOther.insets = new Insets(0, 15, 0, 5);
+				gbc_rdbtnAssignToOther.gridx = 0;
+				gbc_rdbtnAssignToOther.gridy = 7;
+				panel.add(rdbtnAssignToOther, gbc_rdbtnAssignToOther);
 			}
 			{
 				txtOthertaskdetails = new JTextField();
@@ -197,15 +212,16 @@ public class AllocateIdleTimePopup extends JDialog implements
 				panel.add(lblContinueTimingWith, gbc_lblContinueTimingWith);
 			}
 			{
-				JRadioButton rdbtnTaskTimeWas = new JRadioButton(
+				rdbtnContWithAssignedTask = new JRadioButton(
 						"Task time was assigned to:");
-				grpContinueChoice.add(rdbtnTaskTimeWas);
-				GridBagConstraints gbc_rdbtnTaskTimeWas = new GridBagConstraints();
-				gbc_rdbtnTaskTimeWas.anchor = GridBagConstraints.WEST;
-				gbc_rdbtnTaskTimeWas.insets = new Insets(0, 15, 0, 5);
-				gbc_rdbtnTaskTimeWas.gridx = 0;
-				gbc_rdbtnTaskTimeWas.gridy = 10;
-				panel.add(rdbtnTaskTimeWas, gbc_rdbtnTaskTimeWas);
+				rdbtnContWithAssignedTask.setSelected(true);
+				grpContinueChoice.add(rdbtnContWithAssignedTask);
+				GridBagConstraints gbc_rdbtnContWithAssignedTask = new GridBagConstraints();
+				gbc_rdbtnContWithAssignedTask.anchor = GridBagConstraints.WEST;
+				gbc_rdbtnContWithAssignedTask.insets = new Insets(0, 15, 0, 5);
+				gbc_rdbtnContWithAssignedTask.gridx = 0;
+				gbc_rdbtnContWithAssignedTask.gridy = 10;
+				panel.add(rdbtnContWithAssignedTask, gbc_rdbtnContWithAssignedTask);
 			}
 			{
 				txtAssignedtotaskdetails = new JTextField();
@@ -223,15 +239,15 @@ public class AllocateIdleTimePopup extends JDialog implements
 				txtAssignedtotaskdetails.setColumns(10);
 			}
 			{
-				JRadioButton rdbtnOriginalTask = new JRadioButton(
+				rdbtnContWithOriginalTask = new JRadioButton(
 						"Original task:");
-				grpContinueChoice.add(rdbtnOriginalTask);
-				GridBagConstraints gbc_rdbtnOriginalTask = new GridBagConstraints();
-				gbc_rdbtnOriginalTask.anchor = GridBagConstraints.WEST;
-				gbc_rdbtnOriginalTask.insets = new Insets(0, 15, 0, 5);
-				gbc_rdbtnOriginalTask.gridx = 0;
-				gbc_rdbtnOriginalTask.gridy = 11;
-				panel.add(rdbtnOriginalTask, gbc_rdbtnOriginalTask);
+				grpContinueChoice.add(rdbtnContWithOriginalTask);
+				GridBagConstraints gbc_rdbtnContWithOriginalTask = new GridBagConstraints();
+				gbc_rdbtnContWithOriginalTask.anchor = GridBagConstraints.WEST;
+				gbc_rdbtnContWithOriginalTask.insets = new Insets(0, 15, 0, 5);
+				gbc_rdbtnContWithOriginalTask.gridx = 0;
+				gbc_rdbtnContWithOriginalTask.gridy = 11;
+				panel.add(rdbtnContWithOriginalTask, gbc_rdbtnContWithOriginalTask);
 			}
 			{
 				txtOriginaltaskdetails_1 = new JTextField();
@@ -249,15 +265,15 @@ public class AllocateIdleTimePopup extends JDialog implements
 				txtOriginaltaskdetails_1.setColumns(10);
 			}
 			{
-				JRadioButton rdbtnOther_1 = new JRadioButton("Other:");
-				rdbtnOther_1.setEnabled(false);
-				grpContinueChoice.add(rdbtnOther_1);
-				GridBagConstraints gbc_rdbtnOther_1 = new GridBagConstraints();
-				gbc_rdbtnOther_1.anchor = GridBagConstraints.WEST;
-				gbc_rdbtnOther_1.insets = new Insets(0, 15, 0, 5);
-				gbc_rdbtnOther_1.gridx = 0;
-				gbc_rdbtnOther_1.gridy = 12;
-				panel.add(rdbtnOther_1, gbc_rdbtnOther_1);
+				rdbtnContWithOtherTask = new JRadioButton("Other:");
+				rdbtnContWithOtherTask.setEnabled(false);
+				grpContinueChoice.add(rdbtnContWithOtherTask);
+				GridBagConstraints gbc_rdbtnContWithOtherTask = new GridBagConstraints();
+				gbc_rdbtnContWithOtherTask.anchor = GridBagConstraints.WEST;
+				gbc_rdbtnContWithOtherTask.insets = new Insets(0, 15, 0, 5);
+				gbc_rdbtnContWithOtherTask.gridx = 0;
+				gbc_rdbtnContWithOtherTask.gridy = 12;
+				panel.add(rdbtnContWithOtherTask, gbc_rdbtnContWithOtherTask);
 			}
 			{
 				txtContinuewithothertask = new JTextField();
@@ -295,7 +311,7 @@ public class AllocateIdleTimePopup extends JDialog implements
 			}
 		}
 
-		setDefaultCloseOperation(HIDE_ON_CLOSE);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 	}
 
 	protected void CommitClicked() {
@@ -312,26 +328,29 @@ public class AllocateIdleTimePopup extends JDialog implements
 		SetOriginalTask(currentTask);
 		
 		// Get the duration of idle time in seconds
-		double maxTimeThatCanBeAllocated = ((double)(idleEndTime.getTime() - idleStartTime.getTime())) / 1000.0;
+		this.maxTimeThatCanBeAllocated = ((double)(idleEndTime.getTime() - idleStartTime.getTime())) / 1000.0;
 		
 		do {
 			// Display it to the user
 			this.setVisible(true);
 
 			// Check the user input for correctness, if not display again
-		} while (!AllInputsAreValid(maxTimeThatCanBeAllocated));		
+		} while (!AllInputsAreValid());	
+		
+		// Finished with it now
+		this.dispose();
 	}
 
-	private boolean AllInputsAreValid(double maxTimeThatCanBeAllocated) {
+	private boolean AllInputsAreValid() {
 		
 		// Check the user time portion
-		if (rdbtnSomeOfIt.isSelected()) {
+		if (rdbtnSomeOfIdle.isSelected()) {
 			// Check its a number
 			if (txtTimeToAllocate.getText().matches("(\\d{1,2})(\\:(\\d{1,2})){0,2}")) {
-				double timeToAllocate = GetAmountOfTimeToAllocate();
+				double timeToAllocate = GetPartialAmountOfTimeToAllocate();
 
 				// Check that it doesn't exceed the limit allowed
-				if (timeToAllocate > maxTimeThatCanBeAllocated || timeToAllocate < 0.0) {
+				if (timeToAllocate > this.maxTimeThatCanBeAllocated || timeToAllocate < 0.0) {
 					return false;
 				}
 
@@ -345,9 +364,25 @@ public class AllocateIdleTimePopup extends JDialog implements
 
 	@Override
 	public double GetAmountOfTimeToAllocate() {
-		// TODO Check the radio buttons for the source first
+		// Check the radio buttons for the source
+		ButtonModel selectedPortionChoice = grpKeepPortionChoice.getSelection();
+		
+		if (selectedPortionChoice == rdbtnAllOfIdle) {
+			return maxTimeThatCanBeAllocated;
+		} else if (selectedPortionChoice == rdbtnSomeOfIdle) {
+			return GetPartialAmountOfTimeToAllocate();
+		} else if (selectedPortionChoice == rdbtnNoneOfIdle) {
+			return 0.0;
+		} else {
+			// TODO Log the event (should never happen since defaults are set)
+			// Default to returning all of it
+			return maxTimeThatCanBeAllocated;
+		}
+	}
+	
+	protected double GetPartialAmountOfTimeToAllocate() {
 		String timeValues[] = txtTimeToAllocate.getText().split(":");
-
+		
 		// Convert to longs
 		int mins = (timeValues.length > 0) ? new Integer(timeValues[0])
 				: 0;
@@ -366,12 +401,24 @@ public class AllocateIdleTimePopup extends JDialog implements
 
 	@Override
 	public Task GetTaskToAllocateTimeTo() {
+		// Only support original task currently
 		return originalTask;
 	}
 
 	@Override
 	public Task GetTaskToContinueTimingWith() {
-		return originalTask;
+		// Check the radio buttons for the source
+		ButtonModel selectedContinueChoice = grpContinueChoice.getSelection();
+		
+		if (selectedContinueChoice == rdbtnContWithAssignedTask) {
+			return GetTaskToAllocateTimeTo();
+		} else if (selectedContinueChoice == rdbtnContWithOriginalTask) {
+			return originalTask;
+		} else {
+			// TODO Log (should never happen as we set defaults)
+			// Default to original task
+			return originalTask;
+		}
 	}
 
 	protected void SetIdleperiodText(Date idleStartTime, Date idleEndTime) {
@@ -389,5 +436,29 @@ public class AllocateIdleTimePopup extends JDialog implements
 		String originalTaskDetails = originalTask.GetName() + " Total time: " + originalTask.GetTotalTime();
 		txtOriginaltaskdetails.setText(originalTaskDetails);
 		txtOriginaltaskdetails_1.setText(originalTaskDetails);
+	}
+	
+	/**
+	 * @param args
+	 *            Command line args
+	 */
+	public static void main(String[] args) {
+
+		// Create a popup
+		AllocateIdleTimePopup ui = new AllocateIdleTimePopup();
+		
+		// Create a task and idle period
+		Task defaultTask = new Task("Default", 0.0);
+		Date start = new Date();
+		Date end = new Date(start.getTime() + (1000*60*5));
+		
+		// Show the task to the user
+		ui.RequestUsersChoice(defaultTask, start, end);
+		
+		// Print out the results
+		System.out.println("Keep: " + ui.GetAmountOfTimeToAllocate());
+		System.out.println("Assign to: " + ui.GetTaskToAllocateTimeTo());
+		System.out.println("Continue with: " + ui.GetTaskToContinueTimingWith());
+		
 	}
 }

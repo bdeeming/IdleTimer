@@ -31,6 +31,8 @@ public interface TimeAllocationChooser {
 	 * <br>
 	 * Results are stored in this object instance and can be accessed with other
 	 * routines.
+	 * TODO Change to be a factory method that returns a 'result' object - allows it 
+	 * to create a new instance of whatever for the display, which has defaults set etc.
 	 */
 	public void RequestUsersChoice(final Task currentTask, final Date idleStartTime,
 			final Date idleEndTime);
