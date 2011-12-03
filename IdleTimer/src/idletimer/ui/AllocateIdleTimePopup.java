@@ -367,11 +367,11 @@ public class AllocateIdleTimePopup extends JDialog implements
 		// Check the radio buttons for the source
 		ButtonModel selectedPortionChoice = grpKeepPortionChoice.getSelection();
 		
-		if (selectedPortionChoice == rdbtnAllOfIdle) {
+		if (selectedPortionChoice == rdbtnAllOfIdle.getModel()) {
 			return maxTimeThatCanBeAllocated;
-		} else if (selectedPortionChoice == rdbtnSomeOfIdle) {
+		} else if (selectedPortionChoice == rdbtnSomeOfIdle.getModel()) {
 			return GetPartialAmountOfTimeToAllocate();
-		} else if (selectedPortionChoice == rdbtnNoneOfIdle) {
+		} else if (selectedPortionChoice == rdbtnNoneOfIdle.getModel()) {
 			return 0.0;
 		} else {
 			// TODO Log the event (should never happen since defaults are set)
@@ -410,9 +410,9 @@ public class AllocateIdleTimePopup extends JDialog implements
 		// Check the radio buttons for the source
 		ButtonModel selectedContinueChoice = grpContinueChoice.getSelection();
 		
-		if (selectedContinueChoice == rdbtnContWithAssignedTask) {
+		if (selectedContinueChoice == rdbtnContWithAssignedTask.getModel()) {
 			return GetTaskToAllocateTimeTo();
-		} else if (selectedContinueChoice == rdbtnContWithOriginalTask) {
+		} else if (selectedContinueChoice == rdbtnContWithOriginalTask.getModel()) {
 			return originalTask;
 		} else {
 			// TODO Log (should never happen as we set defaults)
