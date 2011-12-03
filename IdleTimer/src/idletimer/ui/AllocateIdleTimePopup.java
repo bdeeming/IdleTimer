@@ -3,6 +3,7 @@ package idletimer.ui;
 import idletimer.LiveTaskTimer;
 import idletimer.Task;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.swing.ButtonModel;
@@ -422,8 +423,11 @@ public class AllocateIdleTimePopup extends JDialog implements
 	}
 
 	protected void SetIdleperiodText(Date idleStartTime, Date idleEndTime) {
+		
+		SimpleDateFormat dateFormat = new SimpleDateFormat("EEE hh:mm aa");
+		
 		// Form the string
-		String labelText = idleStartTime + " to " + idleEndTime;
+		String labelText = dateFormat.format(idleStartTime) + " to " + dateFormat.format(idleEndTime);
 		
 		// Set the GUI text
 		lblIdleperiod.setText(labelText);
