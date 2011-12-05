@@ -1,6 +1,5 @@
 package idletimer.ui;
 
-import idletimer.LiveTaskTimer;
 import idletimer.Task;
 
 import java.text.SimpleDateFormat;
@@ -25,15 +24,9 @@ import javax.swing.JTextField;
 import javax.swing.ButtonGroup;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ChangeEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
 import org.eclipse.wb.swing.FocusTraversalOnArray;
-import java.awt.event.InputMethodListener;
-import java.awt.event.InputMethodEvent;
 
 public class AllocateIdleTimePopup extends JDialog implements
 		TimeAllocationChooser {
