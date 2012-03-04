@@ -1,6 +1,25 @@
+/**********************************************************************
+ * Copyright (c) 2011 Benjamin Deeming.
+ * 
+ * This file is part of IdleTimer.
+ * 
+ * IdleTimer is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * IdleTimer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with IdleTimer.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ *********************************************************************/
+
 package idletimer.ui;
 
-import idletimer.LiveTaskTimer;
 import idletimer.Task;
 
 import java.text.SimpleDateFormat;
@@ -25,15 +44,9 @@ import javax.swing.JTextField;
 import javax.swing.ButtonGroup;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ChangeEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
 import org.eclipse.wb.swing.FocusTraversalOnArray;
-import java.awt.event.InputMethodListener;
-import java.awt.event.InputMethodEvent;
 
 public class AllocateIdleTimePopup extends JDialog implements
 		TimeAllocationChooser {

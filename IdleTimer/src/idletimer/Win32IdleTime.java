@@ -1,3 +1,23 @@
+/**********************************************************************
+ * Copyright (c) 2011 Benjamin Deeming.
+ * 
+ * This file is part of IdleTimer.
+ * 
+ * IdleTimer is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * IdleTimer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with IdleTimer.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ *********************************************************************/
+
 package idletimer;
 
 import java.text.DateFormat;
@@ -10,8 +30,6 @@ import com.sun.jna.win32.*;
 /**
  * Utility method to retrieve the idle time on Windows and sample code to test
  * it. JNA shall be present in your classpath for this to work (and compile).
- * 
- * @author ochafik
  */
 public class Win32IdleTime {
 
@@ -36,7 +54,7 @@ public class Win32IdleTime {
 		/**
 		 * Contains the time of the last input.
 		 * 
-		 * @see http
+		 * @see http 
 		 *      ://msdn.microsoft.com/library/default.asp?url=/library/en-us/
 		 *      winui/winui/windowsuserinterface/userinput/keyboardinput/
 		 *      keyboardinputreference/keyboardinputstructures/lastinputinfo.asp
@@ -51,7 +69,7 @@ public class Win32IdleTime {
 		/**
 		 * Retrieves the time of the last input event.
 		 * 
-		 * @see http
+		 * @see http 
 		 *      ://msdn.microsoft.com/library/default.asp?url=/library/en-us/
 		 *      winui/winui/windowsuserinterface/userinput/keyboardinput/
 		 *      keyboardinputreference
@@ -63,7 +81,7 @@ public class Win32IdleTime {
 
 	/**
 	 * Get the amount of milliseconds that have elapsed since the last input
-	 * event (mouse or keyboard)
+	 * event (mouse or keyboard).
 	 * 
 	 * @return idle time in milliseconds
 	 */
